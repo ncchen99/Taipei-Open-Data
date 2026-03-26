@@ -50,10 +50,12 @@ class HttpClient:
         body_bytes: bytes | None = None
         headers = dict(self._headers)
         if json_body is not None:
-            body_bytes = json.dumps(json_body, ensure_ascii=False).encode("utf-8")
+            body_bytes = json.dumps(
+                json_body, ensure_ascii=False).encode("utf-8")
             headers["Content-Type"] = "application/json"
 
-        req = Request(request_url, data=body_bytes, headers=headers, method=method)
+        req = Request(request_url, data=body_bytes,
+                      headers=headers, method=method)
         with self._opener.open(req, timeout=30) as resp:
             raw = resp.read()
         return json.loads(raw.decode("utf-8"))
@@ -100,7 +102,8 @@ def fetch_taipei_datasets(client: HttpClient, page_limit: int = 200) -> list[Dat
             "sort": "metadata_changed.date_desc",
         }
 
-        data = client.request_json("POST", TAIPEI_SEARCH_URL, json_body=payload)
+        data = client.request_json(
+            "POST", TAIPEI_SEARCH_URL, json_body=payload)
         result = data.get("payload", {}).get("search_result", [])
 
         if not result:
@@ -109,7 +112,8 @@ def fetch_taipei_datasets(client: HttpClient, page_limit: int = 200) -> list[Dat
         for item in result:
             rows.append(
                 DatasetRow(
-                    name=_normalize_text(item.get("title") or item.get("name")),
+                    name=_normalize_text(
+                        item.get("title") or item.get("name")),
                     usage_count=_to_int(item.get("use_count")),
                     updated_at=_normalize_text(
                         item.get("metadata_changed")
@@ -154,7 +158,8 @@ def fetch_ntpc_datasets(client: HttpClient, page_limit: int = 200) -> list[Datas
 
             rows.append(
                 DatasetRow(
-                    name=_normalize_text(item.get("title") or item.get("name")),
+                    name=_normalize_text(
+                        item.get("title") or item.get("name")),
                     usage_count=_to_int(usage),
                     updated_at=_normalize_text(
                         item.get("resource_last_modified")
